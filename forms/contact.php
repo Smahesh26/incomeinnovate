@@ -1,41 +1,41 @@
 <?php
-  /**
-  * Requires the "PHP Email Form" library
-  * The "PHP Email Form" library is available only in the pro version of the template
-  * The library should be uploaded to: vendor/php-email-form/php-email-form.php
-  * For more info and help: https://bootstrapmade.com/php-email-form/
-  */
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $to = "connect@incomeinnovate.in, diksha.kashyap@incomeinnovate.in, shivkumar@incomeinnovate.in";
+    $subject = "📩 New Contact Form Submission from Income Innovate Website";
 
-  // Replace contact@example.com with your real receiving email address
-  $receiving_email_address = 'contact@example.com';
+    // Get POST data
+    $name    = htmlspecialchars($_POST['name']);
+    $email   = htmlspecialchars($_POST['email']);
+    $phone   = htmlspecialchars($_POST['phone']);
+    $state   = htmlspecialchars($_POST['state']);
+    $loan    = htmlspecialchars($_POST['subject']);
+    $message = htmlspecialchars($_POST['message']);
 
-  if( file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php' )) {
-    include( $php_email_form );
-  } else {
-    die( 'Unable to load the "PHP Email Form" Library!');
-  }
+    // Compose email body for team
+    $body = "You have received a new message from the Income Innovate website:\n\n";
+    $body .= "Name       : $name\n";
+    $body .= "Email      : $email\n";
+    $body .= "Phone      : $phone\n";
+    $body .= "State      : $state\n";
+    $body .= "Loan Type  : $loan\n";
+    $body .= "Message    :\n$message\n";
 
-  $contact = new PHP_Email_Form;
-  $contact->ajax = true;
-  
-  $contact->to = $receiving_email_address;
-  $contact->from_name = $_POST['name'];
-  $contact->from_email = $_POST['email'];
-  $contact->subject = $_POST['subject'];
+    $headers = "From: $email";
 
-  // Uncomment below code if you want to use SMTP to send emails. You need to enter your correct SMTP credentials
-  /*
-  $contact->smtp = array(
-    'host' => 'example.com',
-    'username' => 'example',
-    'password' => 'pass',
-    'port' => '587'
-  );
-  */
+    // Send to team
+    if (mail($to, $subject, $body, $headers)) {
 
-  $contact->add_message( $_POST['name'], 'From');
-  $contact->add_message( $_POST['email'], 'Email');
-  $contact->add_message( $_POST['message'], 'Message', 10);
+        // Auto-reply to sender
+        $user_subject = "✅ Thank you for contacting Income Innovate!";
+        $user_message = "Hi $name,\n\n";
+        $user_message .= "Thank you for reaching out to Income Innovate. We've received your message and our team will get back to you shortly.\n\n";
+        $user_message .= "Warm regards,\nTeam Income Innovate";
 
-  echo $contact->send();
+        mail($email, $user_subject, $user_message, "From: connect@incomeinnovate.com");
+
+        echo "Your message has been sent successfully.";
+    } else {
+        echo "There was an error sending your message. Please try again.";
+    }
+}
 ?>
